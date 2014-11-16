@@ -1,16 +1,87 @@
-var c = document.getElementById("myCanvas");
-var ctx = c.getContext("2d");
+var a = {};
+var b = {};
 
-updateLine();
+makeDrawing(a,"myCanvas");
+makeDrawing(b,"myCanvas2");
 
-function updateLine() {
 
-	makeVectors();
-	drawVectors();
-	requestAnimationFrame(updateLine);
+function makeDrawing(x,canvas){
+
+	var c = document.getElementById(canvas);
+	var ctx = c.getContext("2d");
+
+	var self = x;
+
+	updateLine();
+
+	function updateLine() {
+
+		makeVectors(self);
+		drawVectors(ctx,self);
+		requestAnimationFrame(updateLine);
+	}
+
+
+	c.addEventListener('mousedown', function (evt) {
+		// varR=true;
+		drawLine = true;
+		console.log('down');
+
+	}, false);
+
+	c.addEventListener('mouseup', function (evt) {
+		drawLine = false;
+		moveCtrl = -1;
+	}, false);
+
+	c.addEventListener('mousemove', function (evt) {
+		var mousePos = getMousePos(c, evt);
+		// for(var i = 0 ; i < 10 ; i++){
+		// 	var p = Math.floor((mousePos.y/150)*10);
+		// }
+		// console.log(vectors.length);
+
+		// console.log(moveCtrl);
+		if (drawLine) {
+			for(var i = 0 ; i < self.ctrls.length ; i++){
+				// console.log(Math.abs(mousePos.x - ctrls[i].x));
+				if( dist(mousePos,self.ctrls[i])<20 || moveCtrl == i){
+					self.ctrls[i].x = mousePos.x;
+					self.ctrls[i].y = mousePos.y;
+					moveCtrl = i;
+					i=self.ctrls.length;
+
+				}
+				if(i==0||i==self.ctrls.length-1){
+					self.ctrls[i].x =0;
+				}
+			}
+
+			self.ctrls[0].x =0;
+			self.ctrls[self.ctrls.length-1].x=0;
+			// for(var i = 0 ; i < vectors.length ; i++){
+			// vectors.push({
+			// 	x: mousePos.x,
+			// 	y: mousePos.y,
+			// 	z: 0
+			// });
+			// if (vectors.length > 100)
+			// 	vectors.shift();
+
+			// vectors.unshift({x:0,y:mousePos.y,z:0});
+			// vectors.shift();
+
+			// }
+		}
+
+		//    vectors[0].x = 0;
+		// vectors[vectors.length-1].x = 0;
+		// drawLine = false;
+		// console.log('Mouse position: ' + mousePos.x + ',' + mousePos.y);
+	}, false);
 }
 
-function makeVectors() {
+function makeVectors(s) {
 
 	// if (typeof vectors === 'undefined') {
 	// 	vectors = [];
@@ -24,12 +95,13 @@ function makeVectors() {
 	// 	}
 
 	// }
-	// 
+	
+	// default apple shape
 	var nums = [0,55,0,32,22,0,78,9,0,119,28,0,130,65,0,119,100,0,98,128,0,64,144,0,30,136,0,0,121,0]
 
-	if (typeof ctrls === 'undefined') {
-		ctrls = [];
-		vectors = [];
+	if (typeof s.ctrls === 'undefined') {
+		s.ctrls = [];
+		s.vectors = [];
 
 		var q = -1;
 
@@ -38,14 +110,14 @@ function makeVectors() {
 			vec.x = nums[++q];//150 + ((1 + Math.cos((i / 9) * Math.PI * 2)) / 2) * -150; //Math.sin(i+cd);//*1+Math.sin(i*.032+(i/100)*pi*20)*.1;
 			vec.y = nums[++q];//i * 75 / 5; //*1+Math.cos(i*.032+(i/100)*pi*20)*.1;
 			vec.z = nums[++q];//0;
-			ctrls.push(vec);
-			vectors.push(vec);
+			s.ctrls.push(vec);
+			s.vectors.push(vec);
 		}
 	}
 
 }
 
-function drawVectors() {
+function drawVectors(ctx,s) {
 
 	// ctx.fillStyle="#ffffff";
 	// ctx.fill();
@@ -56,21 +128,21 @@ function drawVectors() {
 
 	// ctx.moveTo(25+vectors[0].x,vectors[0].y*16);
 	// console.log(vectors.length);
-	for (var i = 1; i < vectors.length; i++) {
+	for (var i = 1; i < s.vectors.length; i++) {
 		ctx.beginPath();
-		var vec = vectors[i - 1];
+		var vec = s.vectors[i - 1];
 		// console.log(vec.x);
 		ctx.lineTo(vec.x, vec.y);
-		var vec = vectors[i];
+		var vec = s.vectors[i];
 		// console.log(vec.x);
 		ctx.lineTo(vec.x, vec.y);
 
 		ctx.stroke();
 
 	}
-	for(var i = 0 ; i < ctrls.length ; i++){
+	for(var i = 0 ; i < s.ctrls.length ; i++){
 		ctx.beginPath();
-		ctx.arc(ctrls[i].x, ctrls[i].y, 10, 0, 2 * Math.PI, false);
+		ctx.arc(s.ctrls[i].x, s.ctrls[i].y, 10, 0, 2 * Math.PI, false);
 		ctx.fillStyle = "#ffffff";
 		ctx.fill();
 		ctx.stroke();
@@ -86,65 +158,10 @@ function getMousePos(canvas, evt) {
 		y: evt.clientY - rect.top
 	};		
 }
+
 drawLine = false;
 moveCtrl = -1;
 
-c.addEventListener('mousedown', function (evt) {
-	// varR=true;
-	drawLine = true;
-	console.log('down');
-
-}, false);
-c.addEventListener('mouseup', function (evt) {
-	drawLine = false;
-	moveCtrl = -1;
-}, false);
-
-c.addEventListener('mousemove', function (evt) {
-	var mousePos = getMousePos(c, evt);
-	// for(var i = 0 ; i < 10 ; i++){
-	// 	var p = Math.floor((mousePos.y/150)*10);
-	// }
-	// console.log(vectors.length);
-
-	console.log(moveCtrl);
-	if (drawLine) {
-		for(var i = 0 ; i < ctrls.length ; i++){
-			// console.log(Math.abs(mousePos.x - ctrls[i].x));
-			if( dist(mousePos,ctrls[i])<20 || moveCtrl == i){
-				ctrls[i].x = mousePos.x;
-				ctrls[i].y = mousePos.y;
-				moveCtrl = i;
-				i=ctrls.length;
-
-			}
-			if(i==0||i==ctrls.length-1){
-				ctrls[i].x =0;
-			}
-		}
-
-		ctrls[0].x =0;
-		ctrls[ctrls.length-1].x=0;
-		// for(var i = 0 ; i < vectors.length ; i++){
-		// vectors.push({
-		// 	x: mousePos.x,
-		// 	y: mousePos.y,
-		// 	z: 0
-		// });
-		// if (vectors.length > 100)
-		// 	vectors.shift();
-
-		// vectors.unshift({x:0,y:mousePos.y,z:0});
-		// vectors.shift();
-
-		// }
-	}
-
-	//    vectors[0].x = 0;
-	// vectors[vectors.length-1].x = 0;
-	// drawLine = false;
-	// console.log('Mouse position: ' + mousePos.x + ',' + mousePos.y);
-}, false);
 
 function dist(a,b){
 	var X = Math.abs(a.x - b.x);

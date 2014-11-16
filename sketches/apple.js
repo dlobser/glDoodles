@@ -5,6 +5,8 @@ sc1 = {
 
 	setup: function () {
 
+		console.log(b);
+
 		R = new rainbow();
 		R.randomCurves();
 		R.lerpCurves();
@@ -20,6 +22,7 @@ sc1 = {
 
 	draw: function (time) {
 
+		R.steps = (data.var6+1)*10;
 
 		if(drawLine || !compareObj(data,pData)){
 			R.randomCurves();
@@ -212,10 +215,10 @@ rainbow.prototype.lerpCurves = function () {
 	for (var j = 0; j < this.steps; j++) {
 		var c = [];
 		for (var i = 0; i <= this.ctrlSteps; i++) {
-			var a = c1.getPointAt(i / this.ctrlSteps);
-			var b = c2.getPointAt(i / this.ctrlSteps);
-			a.lerp(b, j / this.steps);
-			c.push(a);
+			var l = c1.getPointAt(i / this.ctrlSteps);
+			var k = c2.getPointAt(i / this.ctrlSteps);
+			l.lerp(k, j / this.steps);
+			c.push(l);
 		}
 		this.curves.push(c);
 	}
@@ -228,12 +231,25 @@ rainbow.prototype.randomCurves = function () {
 		this.ctrlCurves[i] = this.makeRandomCurve((.1 + i) * 20);
 	}
 
-	if (vectors.length > 0) {
+	if (a.vectors.length > 0) {
 		this.ctrlCurves[1] = [];
-		for (var i = 0; i < vectors.length; i++) {
-			this.ctrlCurves[1][i] = new THREE.Vector3(vectors[i].x * .2, 20 + vectors[i].y * -.2, 0);
+		for (var i = 0; i < a.vectors.length; i++) {
+			this.ctrlCurves[1][i] = new THREE.Vector3(a.vectors[i].x * .2, 20 + a.vectors[i].y * -.2, 0);
 		} // console.log(this.ctrlCurves[1]);
 	}
+	if (b.vectors.length > 0) {
+
+		var diff = a.vectors[a.vectors.length-1].y-a.vectors[0].y;
+		 diff-=a.vectors[0].y;
+		console.log(diff);
+		// diff-=a.vectors[0].y;
+		this.ctrlCurves[0] = [];
+		for (var i = 0; i < b.vectors.length; i++) {
+			this.ctrlCurves[0][i] = new THREE.Vector3(b.vectors[i].x * .05, 5+(b.vectors[i].y * -.05), 0);
+		} // console.log(this.ctrlCurves[1]);
+	}
+
+	console.log(this.ctrlCurves[0][1].x,this.ctrlCurves[1][1].x);
 
 };
 
