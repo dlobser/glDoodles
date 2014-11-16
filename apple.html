@@ -1,0 +1,220 @@
+<html>
+  <head>
+    <title>TREE.js</title>
+ 
+    <style>
+    #container{
+		width:500px
+	}
+	body{
+		background-color:white;
+		margin:0;
+		padding:0;
+		text-decoration:none;
+		/*cursor: none !important; */
+	}
+	 body {
+        overflow: hidden;
+	   font-family: 'Roboto', sans-serif; sans-serif; 
+	   font-weight: 300;
+	
+    }
+    a:link {color:#999999;text-decoration:none;}      /* unvisited link */
+	a:visited {color:#999999;text-decoration:none;}  /* visited link */
+	a:hover {color:#333333;text-decoration:none;}  /* mouse over link */
+	a:active {color:#999999;text-decoration:none;}  /* selected link */
+   
+	.buttonb {
+		-moz-box-shadow:inset 0px 6px 3px 0px #ffffff;
+		-webkit-box-shadow:inset 0px 6px 3px 0px #ffffff;
+		box-shadow:inset 0px 14px 13px 0px #ffffff;
+		background-color:#f9f9f9;
+		border:1px solid #dcdcdc;
+		display:inline-block;
+		color:#666666;
+		font-family:Arial;
+		font-size:10px;
+		font-weight:bold;
+		font-style:normal;
+		height:18px;
+		line-height:5px;
+		width:59px;
+		text-decoration:none;
+		text-align:center;
+		text-shadow:-3px -1px 7px #ffffff;
+	}.buttonb:hover {
+		background-color:#e9e9e9;
+	}.buttonb:active {
+		position:relative;
+		top:1px;
+	}
+	}.buttonb:visited {
+		text-decoration:none !important;
+		border:none;
+	}
+	}.buttonb:focus {
+		text-decoration:none !important;
+		border:none;
+		outline:none;
+	}
+	*:focus {
+	    outline: none;
+	}
+    
+    #editor { 
+        margin: 0;
+        margin-right:50%;
+        margin-bottom:100px;
+        position: absolute;
+        z-index:1;
+        background-color:transparent;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+    }
+    </style>
+	</head>
+<body>
+	<div style="margin:10px;position:absolute"><canvas id="myCanvas" width="150" height="150" style="padding:0px;border-radius:0px"></canvas></div>
+
+<link href='http://fonts.googleapis.com/css?family=Roboto:400,100' rel='stylesheet' type='text/css'>
+
+			<div style="position:absolute;text-align:center;width:100%;z-index:-10">
+				<p style="text-align:center;font-size:3em;margin-top:-1px;color:#eeeeee">Fruitify!</p>
+			</div>
+			
+			<div style="position:absolute;z-index:5;padding-left:10px;padding-top:10px">
+				
+				
+				
+			<!--<input type="button" id="buttonid" value="applyPreset" style="width:70px"onclick="applyPreset()"class="buttonb">-->
+
+
+				<div style="font-family:sans-serif;font-size:.8em">
+				<br>
+			</div>
+			</div>
+			<div id="container">
+		</div>
+		
+		<script>
+
+var c = document.getElementById("myCanvas");
+var ctx = c.getContext("2d");
+
+updateLine();
+
+function updateLine(){
+	
+	makeVectors();
+	drawVectors();
+	requestAnimationFrame(updateLine);
+}
+
+
+function makeVectors(){
+	if(typeof vectors==='undefined'){
+		vectors = [];
+
+		for(var i = 0 ; i < 50 ; i++){
+			var vec = {};
+			vec.x = 150+((1+Math.cos((i/49)*Math.PI*2))/2)*-150;//Math.sin(i+cd);//*1+Math.sin(i*.032+(i/100)*pi*20)*.1;
+			vec.y = i*15/5;//*1+Math.cos(i*.032+(i/100)*pi*20)*.1;
+			vec.z = 0;
+			vectors.push(vec);
+		}
+	}
+}
+
+
+function drawVectors(){
+
+	// ctx.fillStyle="#ffffff";
+	// ctx.fill();
+	// ctx.moveTo(0,0);
+	ctx.clearRect(0,0,150,150);
+	ctx.fillStyle = "#558899";
+	ctx.fillRect(0,0,150,150);
+	
+	// ctx.moveTo(25+vectors[0].x,vectors[0].y*16);
+	console.log(vectors);
+	for(var i = 1 ; i < vectors.length ; i++){
+		ctx.beginPath();
+		var vec = vectors[i-1];
+		// console.log(vec.x);
+		ctx.lineTo(vec.x,vec.y);
+		var vec = vectors[i];
+		// console.log(vec.x);
+		ctx.lineTo(vec.x,vec.y);
+		ctx.stroke();	
+	}
+	// ctx.endPath();
+
+}
+
+
+ function getMousePos(canvas, evt) {
+    var rect = canvas.getBoundingClientRect();
+    return {
+      x: evt.clientX - rect.left,
+      y: evt.clientY - rect.top
+    };
+  }
+  drawLine = false;
+
+   c.addEventListener('mousedown', function(evt) {
+	// varR=true;
+	   	drawLine = true;
+   	console.log('down');
+   	
+  }, false);
+      c.addEventListener('mouseup', function(evt) {
+   	drawLine = false;
+  }, false);
+
+  c.addEventListener('mousemove', function(evt) {
+    var mousePos = getMousePos(c, evt);
+    // for(var i = 0 ; i < 10 ; i++){
+    // 	var p = Math.floor((mousePos.y/150)*10);
+    // }
+    // console.log(mousePos);
+    if(drawLine){
+    	// for(var i = 0 ; i < vectors.length ; i++){
+	    	vectors.push({x:mousePos.x,y:mousePos.y,z:0});
+	    	vectors.shift();
+
+	    	// vectors.unshift({x:0,y:mousePos.y,z:0});
+	    	// vectors.shift();
+
+	    // }
+    }
+    
+ //    vectors[0].x = 0;
+	// vectors[vectors.length-1].x = 0;
+    // drawLine = false;
+    // console.log('Mouse position: ' + mousePos.x + ',' + mousePos.y);
+  }, false);
+
+		// scriptSource = "sketches/workfile.js";
+
+
+		</script>
+
+		<script src="lib/dat.gui.min.js"></script>
+		<script src="lib/three.js"></script>
+		<script src="lib/library.js"></script>
+		<script src="lib/blob.js"></script>
+
+		<script src="lib/TREE.js"></script>
+		<script src="lib/fungus.js"></script>
+
+		<script src="lib/template.js"></script>
+		<script src="sketches/apple.js"></script>
+
+
+
+	</body>
+</html>
+
+
