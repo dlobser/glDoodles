@@ -13,6 +13,8 @@ sc1 = {
 		R.makeTube();
 		scene.add(R.tubeParent);
 		data.var4=.5;
+		data.var2 = Math.random();
+		data.var3 = Math.random();
 
 		frameRate = 1000 / 60;
 
@@ -22,12 +24,13 @@ sc1 = {
 
 	draw: function (time) {
 
-		R.steps = (data.var6+1)*10;
+		R.steps = Math.round((data.var6+1)*10);
 
 		if(drawLine || !compareObj(data,pData)){
 			R.randomCurves();
 			R.lerpCurves();
-			R.tubesRotation[1] = data.var4 * pi * 2;
+			R.tubesRotation[0] = data.var5 * Math.PI;
+			R.tubesRotation[1] = data.var4 * Math.PI;
 			R.makeTube();
 			highres = true;
 		}
@@ -86,6 +89,7 @@ var rainbow = function (params) {
 	this.parent = new THREE.Object3D();
 	this.tubeParent = new THREE.Object3D();
 	this.tubeParent.rotation.y = pi;
+	this.tubeParent.position.y = 15;
 
 };
 
@@ -120,21 +124,27 @@ rainbow.prototype.makeTube = function (params) {
  // var a = [];
  // a.push(this.curves);
  // var tubes = [];
+ // 
+// console.log(this.curves.length);
 
 	for (var i = 0; i < this.curves.length; i++) {
 
-		var rAmount = THREE.Math.mapLinear(i / this.curves.length, 0, 1, this.tubesRotation[0], this.tubesRotation[1]);
+		var rAmount = THREE.Math.mapLinear(i / this.steps, 0, 1, this.tubesRotation[0], this.tubesRotation[1]);
 		var mat = new THREE.Matrix4();
 		var mat2 = new THREE.Matrix4();
 
+		// console.log(rAmount);
 		mat.makeRotationY(rAmount);
 		mat2.makeScale(1, 1, -1);
 
 		for (var j in this.curves[i]) {
 			this.curves[i][j].applyMatrix4(mat);
 		}
+		var col = new THREE.Color();
+		col.setHSL(noise(data.var3+data.var2*10*(i/this.curves.length)),.7+((Math.sin((i/this.curves.length)*Math.PI*2)+1)/4),.6);
+
 		var tube = new THREE.Mesh(new THREE.TubeGeometry(new THREE.SplineCurve3(this.curves[i]), args.curveDetail), new THREE.MeshLambertMaterial({
-			color: Math.sin(i + data.var2) * 0xffffff
+			color: col
 		}));
 
 		// for(var i = 0 ; i < 8 ; i++){
@@ -146,7 +156,7 @@ rainbow.prototype.makeTube = function (params) {
 			this.curves[i][j].applyMatrix4(mat2);
 		}
 		var tube2 = new THREE.Mesh(new THREE.TubeGeometry(new THREE.SplineCurve3(this.curves[i]), args.curveDetail), new THREE.MeshLambertMaterial({
-			color: Math.sin(i + data.var2) * 0xffffff
+			color: col
 		}));
 
 		// tube2 = tube.clone();
@@ -154,35 +164,145 @@ rainbow.prototype.makeTube = function (params) {
 		// tube2.rotation.y = THREE.Math.mapLinear(i/this.curves.length,0,1,this.tubesRotation[0],-this.tubesRotation[1]);
 		this.tubeGeo.add(tube);
 		this.tubeGeo.add(tube2);
+
+		if(this.tubesRotation[0]<Math.PI/2){
+			if(i==0){
+				var t = tube.clone();
+				t.rotation.y=Math.PI/2-this.tubesRotation[0];
+				this.tubeGeo.add(t);
+				var t = tube.clone();
+				t.rotation.y=-Math.PI/2-this.tubesRotation[0];
+				this.tubeGeo.add(t);
+			}
+		}
+	}
+
+	
+
+	if(d.vectors.length>0){
+		var tube = new THREE.Mesh(new THREE.TubeGeometry(new THREE.SplineCurve3(this.ctrlCurves[2]), args.curveDetail,1.2), new THREE.MeshLambertMaterial({
+				color: Math.sin(i + data.var2) * 0xffffff
+			}));
+		tube.rotation.y=Math.PI/2;
+		var tube2 = tube.clone();
+		tube2.rotation.y=-Math.PI/2;
+		this.tubeGeo.add(tube2);
+		this.tubeGeo.add(tube);
 	}
 
 	var zCurve = [];
 
-	var mat = new THREE.Matrix4();
-	mat.makeRotationX(pi);
+	// var mat = new THREE.Matrix4();
+	// mat.makeRotationX(pi);
 
-	var latheCurve = new THREE.SplineCurve3(this.curves[this.curves.length - 1]);
-	var lcp = [];
-	for (var i = 0; i < args.curveDetail + 1; i++) {
-		lcp.push(latheCurve.getPointAt(i / args.curveDetail));
-	}
+	// var latheCurve = new THREE.SplineCurve3(this.curves[this.curves.length - 1]);
+	// var lcp = [];
+	// for (var i = 0; i < args.curveDetail + 1; i++) {
+	// 	lcp.push(latheCurve.getPointAt(i / args.curveDetail));
+	// }
 
-	for (var i = 0; i < lcp.length; i++) {
-		var v = lcp[i];
-		v.applyMatrix4(mat);
-		zCurve.push(v);
+	// for (var i = 0; i < lcp.length; i++) {
+	// 	var v = lcp[i];
+	// 	v.applyMatrix4(mat);
+	// 	zCurve.push(v);
 
-	}
+	// }
+
+	// var lathe = new THREE.Mesh(
+	// new THREE.LatheGeometry(zCurve, 30, 0, this.tubesRotation[1] * 1.8),
+	// new THREE.MeshLambertMaterial({
+	// 	side: THREE.DoubleSide,
+	// 	color: Math.sin(i + data.var3) * 0xffffff
+	// }));
+	// // lathe.rotation.z=-this.tubesRotation[1]*.9;
+	// lathe.rotation.x = -pi;
+	// 
+	var col = new THREE.Color();
+		col.setHSL(noise(data.var3+data.var2*10*(this.curves.length-1/this.curves.length)),1,.6);
+
+	var that = this;
 	var lathe = new THREE.Mesh(
-	new THREE.LatheGeometry(zCurve, 30, 0, this.tubesRotation[1] * 1.8),
+	new THREE.ParametricGeometry(
+		function(u,v){			
+			var mat = new THREE.Matrix4();
+			mat.makeRotationY(v*data.var4*Math.PI*2);
+			var points = [];//that.curves[that.curves.length - 1];
+			for(var i = 0 ; i < that.curves[that.curves.length - 1].length ; i++){
+				points.push(that.curves[that.curves.length - 1][i].clone());
+				points[i].applyMatrix4(mat);
+			}
+			var curve = new THREE.SplineCurve3(points);
+			return curve.getPointAt(u);
+		},
+		args.curveDetail,
+		args.curveDetail
+
+		),
 	new THREE.MeshLambertMaterial({
 		side: THREE.DoubleSide,
-		color: Math.sin(i + data.var3) * 0xffffff
+		color: col
 	}));
-	// lathe.rotation.z=-this.tubesRotation[1]*.9;
-	lathe.rotation.x = -pi;
+
+	latheO = lathe.clone();
+	for(var i = 0 ; i < latheO.geometry.faces.length ; i++){
+		if(data.var4>0){
+			latheO.geometry.vertices[latheO.geometry.faces[i].a].add(latheO.geometry.faces[i].normal.multiplyScalar(.5));
+			latheO.geometry.vertices[latheO.geometry.faces[i].b].add(latheO.geometry.faces[i].normal.multiplyScalar(.5));
+			latheO.geometry.vertices[latheO.geometry.faces[i].c].add(latheO.geometry.faces[i].normal.multiplyScalar(.5));
+		}
+		else{
+			latheO.geometry.vertices[latheO.geometry.faces[i].a].sub(latheO.geometry.faces[i].normal.multiplyScalar(.5));
+			latheO.geometry.vertices[latheO.geometry.faces[i].b].sub(latheO.geometry.faces[i].normal.multiplyScalar(.5));
+			latheO.geometry.vertices[latheO.geometry.faces[i].c].sub(latheO.geometry.faces[i].normal.multiplyScalar(.5));
+		}
+
+	}
+	// 
+	// console.log(lathe);
+
 
 	this.tubeGeo.add(lathe);
+	this.tubeGeo.add(latheO);
+
+
+	// var lathe = new THREE.Mesh(
+	// new THREE.ParametricGeometry(
+
+
+	// 	function(u,v){
+
+			
+	// 		var mat = new THREE.Matrix4();
+	// 		mat.makeRotationY(v*data.var4*Math.PI*1.8);
+	// 		var points = [];//that.curves[that.curves.length - 1];
+	// 		for(var i = 0 ; i < that.curves[that.curves.length - 1].length ; i++){
+	// 			points.push(that.curves[that.curves.length - 1][i].clone());
+	// 			points[i].applyMatrix4(mat);
+	// 		}
+	// 		var curve = new THREE.SplineCurve3(points);
+	// 		var c1 = curve.getPointAt(u);
+	// 		if(u>0)
+	// 			var c2 = curve.getPointAt(u-.001);
+	// 		else
+	// 			var c2 = curve.getPointAt(u);
+
+	// 		var c3 = c1.cross(c2);
+
+	// 		return curve.getPointAt(u).add(c3);
+	// 	},
+	// 	20,
+	// 	20
+
+	// 	),
+	// new THREE.MeshLambertMaterial({
+	// 	side: THREE.DoubleSide,
+	// 	color: Math.sin(i + data.var3) * 0xffffff
+	// }));
+
+	// tree = new TREE();
+	// tree.solidify(lathe.geometry,-1);
+
+	
 	// var mat = new THREE.MeshLambertMaterial(  );
 
 	// for(var i = 0 ; i < tubes.children.length ; i++){
@@ -205,6 +325,7 @@ rainbow.prototype.makeTube = function (params) {
 
 };
 
+
 rainbow.prototype.lerpCurves = function () {
 
  var c1 = new THREE.SplineCurve3(this.ctrlCurves[0]);
@@ -212,11 +333,11 @@ rainbow.prototype.lerpCurves = function () {
 
  this.curves = [];
 
-	for (var j = 0; j < this.steps; j++) {
+	for (var j = 0; j <= this.steps; j++) {
 		var c = [];
 		for (var i = 0; i <= this.ctrlSteps; i++) {
-			var l = c1.getPointAt(i / this.ctrlSteps);
-			var k = c2.getPointAt(i / this.ctrlSteps);
+			var l = c1.getPointAt(exp(i / this.ctrlSteps));
+			var k = c2.getPointAt(exp(i / this.ctrlSteps));
 			l.lerp(k, j / this.steps);
 			c.push(l);
 		}
@@ -234,22 +355,31 @@ rainbow.prototype.randomCurves = function () {
 	if (a.vectors.length > 0) {
 		this.ctrlCurves[1] = [];
 		for (var i = 0; i < a.vectors.length; i++) {
-			this.ctrlCurves[1][i] = new THREE.Vector3(a.vectors[i].x * .2, 20 + a.vectors[i].y * -.2, 0);
+			this.ctrlCurves[1][i] = new THREE.Vector3(a.vectors[i].x * .2, a.vectors[i].y * -.2, 0);
 		} // console.log(this.ctrlCurves[1]);
 	}
 	if (b.vectors.length > 0) {
 
-		var diff = a.vectors[a.vectors.length-1].y-a.vectors[0].y;
-		 diff-=a.vectors[0].y;
-		console.log(diff);
+		var diff = (Math.abs(a.vectors[a.vectors.length-1].y-a.vectors[0].y))/2;
+		 diff+=a.vectors[0].y;
+		// console.log(diff);
 		// diff-=a.vectors[0].y;
 		this.ctrlCurves[0] = [];
 		for (var i = 0; i < b.vectors.length; i++) {
-			this.ctrlCurves[0][i] = new THREE.Vector3(b.vectors[i].x * .05, 5+(b.vectors[i].y * -.05), 0);
+			this.ctrlCurves[0][i] = new THREE.Vector3(b.vectors[i].x * .05, ((b.vectors[i].y * -.05) + diff*-.15), 0);
+		} // console.log(this.ctrlCurves[1]);
+	}
+	// console.log(d.vectors);
+	if (d.vectors.length > 0) {
+		d.vectors[d.vectors.length-1].y=150;
+		this.ctrlCurves[2] = [];
+		var off =  Math.min(a.vectors[0].y,a.vectors[a.vectors.length-1].y);
+		for (var i = 0; i < d.vectors.length; i++) {
+			this.ctrlCurves[2][i] = new THREE.Vector3(d.vectors[i].x * .1, -off*.1+ 12 +((d.vectors[i].y * -.1) ), 0);
+
 		} // console.log(this.ctrlCurves[1]);
 	}
 
-	console.log(this.ctrlCurves[0][1].x,this.ctrlCurves[1][1].x);
 
 };
 
@@ -269,3 +399,7 @@ rainbow.prototype.makeRandomCurve = function (off, amount) {
 	return c;
 
 };
+
+function exp(t){
+	return t*t;
+}

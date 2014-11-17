@@ -1,9 +1,18 @@
 var a = {};
 var b = {};
+var d = {};
+
+d.amt = 0;
 
 makeDrawing(a,"myCanvas");
 makeDrawing(b,"myCanvas2");
+// makeDrawing(d,"myCanvas3");
 
+setVectors(b);
+setVectors(a,[0,35,0,17,17,0,56,1,0,95,12,0,112,51,0,102,87,0,86,116,0,56,144,0,22,143,0,0,127,0]);
+// setVectors(d,[0,12,0,19,13,0,42,19,0,60,33,0,65,48,0,61,67,0,48,80,0,24,95,0,11,119,0,0,143,0]);
+// setVectors(d,[0,0,0,24,10,0,30,39,0,13,95,0,0,150,0]);
+setVectors(d,[]);
 
 function makeDrawing(x,canvas){
 
@@ -11,6 +20,8 @@ function makeDrawing(x,canvas){
 	var ctx = c.getContext("2d");
 
 	var self = x;
+	if(!self.amt)
+		self.amt=10;
 
 	updateLine();
 
@@ -45,7 +56,7 @@ function makeDrawing(x,canvas){
 		if (drawLine) {
 			for(var i = 0 ; i < self.ctrls.length ; i++){
 				// console.log(Math.abs(mousePos.x - ctrls[i].x));
-				if( dist(mousePos,self.ctrls[i])<20 || moveCtrl == i){
+				if( dist(mousePos,self.ctrls[i])<10 || moveCtrl == i){
 					self.ctrls[i].x = mousePos.x;
 					self.ctrls[i].y = mousePos.y;
 					moveCtrl = i;
@@ -105,7 +116,7 @@ function makeVectors(s) {
 
 		var q = -1;
 
-		for (var i = 0; i < 10; i++) {
+		for (var i = 0; i < s.amt; i++) {
 			var vec = {};
 			vec.x = nums[++q];//150 + ((1 + Math.cos((i / 9) * Math.PI * 2)) / 2) * -150; //Math.sin(i+cd);//*1+Math.sin(i*.032+(i/100)*pi*20)*.1;
 			vec.y = nums[++q];//i * 75 / 5; //*1+Math.cos(i*.032+(i/100)*pi*20)*.1;
@@ -113,6 +124,25 @@ function makeVectors(s) {
 			s.ctrls.push(vec);
 			s.vectors.push(vec);
 		}
+	}
+}
+
+function setVectors(s,n){
+
+	var nums = n || [0,55,0,13,29,0,36,10,0,67,9,0,94,23,0,103,53,0,84,84,0,50,99,0,17,117,0,0,135,0];
+
+	s.ctrls = [];
+	s.vectors = [];
+
+	var q = -1;
+
+	for (var i = 0; i < s.amt; i++) {
+		var vec = {};
+		vec.x = nums[++q];//150 + ((1 + Math.cos((i / 9) * Math.PI * 2)) / 2) * -150; //Math.sin(i+cd);//*1+Math.sin(i*.032+(i/100)*pi*20)*.1;
+		vec.y = nums[++q];//i * 75 / 5; //*1+Math.cos(i*.032+(i/100)*pi*20)*.1;
+		vec.z = nums[++q];//0;
+		s.ctrls.push(vec);
+		s.vectors.push(vec);
 	}
 
 }
@@ -142,7 +172,7 @@ function drawVectors(ctx,s) {
 	}
 	for(var i = 0 ; i < s.ctrls.length ; i++){
 		ctx.beginPath();
-		ctx.arc(s.ctrls[i].x, s.ctrls[i].y, 10, 0, 2 * Math.PI, false);
+		ctx.arc(s.ctrls[i].x, s.ctrls[i].y, 5, 0, 2 * Math.PI, false);
 		ctx.fillStyle = "#ffffff";
 		ctx.fill();
 		ctx.stroke();
